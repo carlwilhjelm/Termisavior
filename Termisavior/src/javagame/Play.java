@@ -15,12 +15,12 @@ public class Play extends BasicGameState {
 	FPSCap c;
 	
 	//jesus x y constraints
-	public static int jxMax = 575, jyMax = 450, jxMin = 443, jyMin = 220;
-	public static float slope = (float) 1.77;
+	public static int jxMax = 570, jyMax = 450, jxMin = 443, jyMin = 240;
+	//public static float slope = (float) 1.77;
 	//spider x y constraints
-	public static int sxMax = 500, syMax = 450, sxMin = 100, syMin = 220;
+	public static int sxMax = 500, syMax = 450, sxMin = 0, syMin = 300;
 	//bullet x y constraints
-	public static int bxMin = 100;
+	public static int bxMin = 0;
 	//game time
 	public static long gameTime = 0;
 	
@@ -29,10 +29,9 @@ public class Play extends BasicGameState {
 	}
 	
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
-		j = new Jesus(jxMax, jyMax, jxMin, jyMin, slope);
+		j = new Jesus(jxMax, jyMax, jxMin, jyMin);
 		spiList = new SpiderList(sxMax);
 		bList = new BulletList(bxMin);
-		c = new FPSCap();
 		backgroundObj = new Background("res/backgroundPortalA.png", 
 				"res/backgroundPortalB.png", "res/backgroundPortalC.png",
 				"res/backgroundPortalD.png");
@@ -60,13 +59,14 @@ public class Play extends BasicGameState {
 		if(!spiList.isEmpty()) {
 			currentS = spiList.first;
 			do {
-				spiderImage = new Image(currentS.nextImage());
+				//pseudo random image change for spider
+				if ((currentS.x + currentS.y) % 5 == 0) spiderImage = new Image(currentS.nextImage());
 				g.drawImage(spiderImage, currentS.x, currentS.y);
 				currentS = currentS.next;
 			} while (currentS != null);
 		}
 		
-		c.sync(60);
+		FPSCap.sync(60);
 	}
 	
 	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException{
@@ -79,25 +79,25 @@ public class Play extends BasicGameState {
 		//spider spawn and update
 		spiderSpawn();
 		
-		Bullet i = bList.first, delI;
-		Spider j = spiList.first, delJ;
+		Bullet i = bList.first;
+		Spider j = spiList.first;
 		
-		//something wrong with this logic only the first bullet registers as a hit
-		//some hits only delete bullets and not the spider
+		//for each bullet
 		while(i != null) {
 			while (j != null) {
-				if (i.collision(j.x, j.y, j.dx, j.dy)) {
-					bList.remove(i);
+				//check for a collision with every spider
+				if (i.collision(j.x, j.y, Spider.dx, Spider.dy)) {
+					//if a collision occurs remove the bullet and spider
 					spiList.remove(j);
+					bList.remove(i);
 					j = j.next;
+					break;
 				}
-				else {
-					j = j.next;
-				}
+				j = j.next;
 			}
 			i = i.next;
+			j = spiList.first;
 		}
-		
 		gameTime++;
 	}
 	

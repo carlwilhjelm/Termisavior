@@ -2,7 +2,7 @@ package javagame;
 
 public class FPSCap {
 	
-	private long variableYieldTime, lastTime;
+	private static long variableYieldTime, lastTime;
 	/**
 	 * An accurate sync method that adapts automatically
 	 * to the system it runs on to provide reliable results.
@@ -10,7 +10,7 @@ public class FPSCap {
 	 * @param fps The desired frame rate, in frames per second
 	 * @author kappa (On the LWJGL Forums)
 	 */
-	public void sync(int fps) {
+	public static void sync(int fps) {
 	    if (fps <= 0) return;
 	      
 	    long sleepTime = 1000000000 / fps; // nanoseconds to sleep this frame

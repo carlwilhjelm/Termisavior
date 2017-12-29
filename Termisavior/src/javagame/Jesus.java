@@ -5,19 +5,19 @@ import org.newdawn.slick.Image;
 
 public class Jesus {
 	int x, y, xMax, yMax, xMin, yMin;
-	float slope;
+	double slope;
 	Node image;
 	
 	public Jesus(int xMaxIn, int yMaxIn, 
-				int xMinIn, int yMinIn,
-				float slopeIn) throws SlickException{
+				int xMinIn, int yMinIn) throws SlickException{
 		xMax = xMaxIn;
 		yMax = yMaxIn;
 		xMin = xMinIn;
 		yMin = yMinIn;
+		slope = (double)(yMax - yMin)/(xMax - xMin);
+		System.out.println(slope);
 		x = (xMax + xMin)/2;
 		y = (yMax + yMin)/2;
-		slope = slopeIn;
 		Node jesusA = new Node("res/jesusA.png");
 		Node jesusB = new Node("res/jesusB.png", jesusA);
 		jesusA.next = jesusB;
