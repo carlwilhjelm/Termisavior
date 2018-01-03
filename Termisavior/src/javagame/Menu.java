@@ -38,7 +38,7 @@ public class Menu extends BasicGameState {
 			sbg.enterState(1);
 		}
 		
-		
+		FPSCap.sync(60);
 	}
 	
 	public int getID() {

@@ -1,0 +1,14 @@
+package javagame;
+
+public class Corpses {
+	Spider first, last;
+	
+	   public Corpses () {
+	      first = null;
+	      last = null;
+	   }
+		
+	   public boolean isEmpty() {
+	      return first == null;
+	   }
+}

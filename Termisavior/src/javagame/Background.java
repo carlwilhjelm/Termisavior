@@ -1,22 +1,20 @@
 package javagame;
 
 public class Background {
-	Node first;
-	Node current;
+	int current, totalImages;
 	
-	public Background (String firstIn, String...imageNames) {
-		first = new Node(firstIn);
-		current = first;
-		for (String str : imageNames) {
-			current.next = new Node(str);
-			current = current.next;
-		}
-		current.next = first;
+	public Background(int n) {
+	current = 0;
+	totalImages = n;	
 	}
 	
-	public String next() {
-		current = current.next;
-		return current.val;
+	public int next() {
+		if (++current == totalImages) current = 0;
+		return current;
+	}
+	
+	public int current() {
+		return current;
 	}
 
 }

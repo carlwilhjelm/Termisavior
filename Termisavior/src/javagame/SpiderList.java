@@ -1,14 +1,11 @@
 package javagame;
 
 public class SpiderList {
-   int xMax, spawnTime;
    Spider first, last;
 	
-   public SpiderList (int xMaxIn) {
+   public SpiderList () {
       first = null;
       last = null;
-      xMax = xMaxIn;
-      spawnTime = 60;
    }
 	
    public boolean isEmpty() {
@@ -28,30 +25,31 @@ public class SpiderList {
       }
    }
 	
-   public void remove(Spider x) {
+   public Spider remove(Spider x) {
    	
    	//if this is the last spider
       if(x.next == null) {
       	//if this is also the first spider set the first spider to null
          if (x.prev == null) {
             first = null;
-            return;
+            return x;
          }
          //otherwise set the previous spider to last
          else {
-            x.prev = last;
+            last = x.prev;
             last.next = null;
          }
-         return;
+         return x;
       }
    	//if this is the first spider set the next spider to first and set its prev to null
       if(x.prev == null) {
          first = x.next;
          first.prev = null;
-         return;
+         return x;
       }
    	
       x.prev.next = x.next;
       x.next.prev = x.prev;
+      return x;
    }
 }

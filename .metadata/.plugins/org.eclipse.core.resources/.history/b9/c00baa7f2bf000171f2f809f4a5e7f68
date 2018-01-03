@@ -1,0 +1,85 @@
+package javagame;
+import org.newdawn.slick.*;
+import org.newdawn.slick.state.*;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+import java.util.Random;
+
+public class Spider {
+   public static final int dx = 32, dy = 32;
+   public static int yMax, yMin, xMax, xMin, spiderHP = 1;
+   int x, y, xSlope, ySlope, randYInit, hp; 
+   boolean dead;
+   public static String death = "res/bot.png";
+   long spawnTime;
+   Spider prev, next;
+   Node first, current;
+   Random rand = new Random();
+	
+   public Spider(int xInitIn, int yMaxIn, int yMinIn, long spawnTimeIn) throws SlickException {
+	  dead = false;
+      x = xInitIn; 
+      yMax = yMaxIn;
+      yMin = yMinIn;
+      //5 random starting positions
+      randYInit = rand.nextInt(3) + 1;
+      y = yMin + (((yMax - yMin)/4) * randYInit);
+      xSlope = rand.nextInt(3) + 2;
+      ySlope = rand.nextInt(7) - 3;
+      spawnTime = spawnTimeIn;
+      prev = null;
+      next = null;
+      hp = spiderHP;
+   
+   //image node logic
+      first = new Node("res/spider.png");
+      current = new Node("res/spiderb.png");
+      first.next = current;
+      current.next = new Node("res/spider.png");
+      current = current.next;
+      current.next = new Node("res/spiderc.png");
+      current = current.next;
+      current.next = first;
+   }
+   
+   public static void setBounds(int xMaxIn, int yMaxIn, int xMinIn, int yMinIn) {
+	   xMax = xMaxIn;
+	   yMax = yMaxIn;
+	   xMin = xMinIn;
+	   yMin = yMinIn;
+   }
+	
+   public boolean moveR() {
+      x += xSlope;
+      y += ySlope;
+      if (y > yMax || y < yMin) ySlope *= -1;
+      return x < xMax;
+   }
+   
+   public boolean moveL() {
+	      x -= xSlope;
+	      y += ySlope;
+	      if (y > yMax || y < yMin) ySlope *= -1;
+	      return x < xMin;
+	   }
+	
+   public String nextImage() {
+	   if (dead) return death;
+      current = current.next;
+      return current.val;
+   }
+   
+   public void death() {
+	   dead = true;
+   }
+   
+   public void setHP(int x) {
+	   hp = x;
+   }
+   
+   public boolean hit(int x) {
+	   hp -= x;
+	   return hp <= 0;
+   }
+	
+}

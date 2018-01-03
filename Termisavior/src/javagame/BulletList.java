@@ -2,10 +2,9 @@ package javagame;
 
 public class BulletList {
 	Bullet first, last;
-	int xMin, spawnTime;
+	int spawnTime;
 	
-	public BulletList (int xMinIn) {
-		xMin = xMinIn;
+	public BulletList () {
 		first = null;
 		last = null;
 		spawnTime = 5;
@@ -39,7 +38,7 @@ public class BulletList {
 			}
 			//otherwise set the second to last bullet to last
 			else {
-				x.prev = last;
+				last = x.prev;
 				last.next = null;
 			}
 			return;

@@ -1,0 +1,82 @@
+package javagame;
+import org.newdawn.slick.*;
+import org.newdawn.slick.state.*;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+import java.util.Random;
+
+public class Spider {
+   public static final int dx = 32, dy = 32;
+   public static int yMax, yMin, xMax, xMin, spawnTimer, MaxHP, totalLiveImages, totalCorpseImages;
+   int x, y, xSlope, ySlope, randYInit, currentHP, currentImage; 
+   boolean dead;
+   long spawnTime;
+   Spider prev, next;
+   Random rand = new Random();
+	
+   public Spider(long spawnTimeIn) throws SlickException {
+	  dead = false;
+      //5 random starting positions
+      randYInit = rand.nextInt(3) + 1;
+      y = yMin + (((yMax - yMin)/4) * randYInit);
+      xSlope = rand.nextInt(3) + 2;
+      ySlope = rand.nextInt(7) - 3;
+      spawnTime = spawnTimeIn;
+      prev = null;
+      next = null;
+      currentHP = MaxHP;
+      currentImage = 0;
+   }
+   
+   public static void setBounds(int xMaxIn, int yMaxIn, int xMinIn, int yMinIn, int spawnTimerIn,
+		   						int MaxHPIn, int totalLiveImagesIn, int totalCorpseImagesIn) {
+	   xMax = xMaxIn;
+	   yMax = yMaxIn;
+	   xMin = xMinIn;
+	   yMin = yMinIn;
+	   spawnTimer = spawnTimerIn;
+	   MaxHP = MaxHPIn;
+	   totalLiveImages = totalLiveImagesIn;
+	   totalCorpseImages = totalCorpseImagesIn;
+	   
+   }
+	
+   public boolean moveR() {
+      x += xSlope;
+      y += ySlope;
+      if (y > yMax || y < yMin) ySlope *= -1;
+      return x < xMax;
+   }
+   
+   public boolean moveL() {
+	      x -= xSlope;
+	      y += ySlope;
+	      if (y > yMax || y < yMin) ySlope *= -1;
+	      return x < xMin;
+	   }
+	
+   public int nextImage() {
+	  //no death animation currently exists
+	  if (dead) return 0;
+      if (++currentImage == totalLiveImages) currentImage = 0;
+	  return currentImage;
+   }
+   
+   public int getCurrentImage() {
+	   return currentImage;
+   }
+   
+   public void death() {
+	   dead = true;
+   }
+   
+   public void setHP(int x) {
+	   MaxHP = x;
+   }
+   
+   public boolean hit(int x) {
+	   currentHP -= x;
+	   return currentHP <= 0;
+   }
+	
+}

@@ -1,0 +1,197 @@
+package javagame;
+
+import java.lang.Math; 
+import org.lwjgl.input.Mouse;
+import org.newdawn.slick.*;
+import org.newdawn.slick.state.*;
+
+public class Play extends BasicGameState {
+	Jesus j;
+	Image jesus, bulletImage, spiderImage, corpseImage;
+	Image[] background, muzzleFlash;
+	int bgn, mfn;
+	Background backgroundObj;
+	MuzzleFlash muzzleFlashObj;
+	boolean drawMF;
+	Bullet currentB;
+	Spider currentS;
+	SpiderList spiList;
+	Corpses cList;
+	BulletList bList;
+	FPSCap c;
+	
+	//jesus x y constraints
+	public static int jxMax = 570, jyMax = 450, jxMin = 443, jyMin = 240;
+	//spider x y constraints
+	int sxMax = 500, syMax = 450, sxMin = 0, syMin = 300;
+	//bullet x constraints
+	int bxMin = 0;
+	//game time
+	public static long gameTime = 0;
+	//killed escaped
+	public static int killed = 0, escaped = 0;
+	
+	
+	public Play(int state) throws SlickException{
+	}
+	
+	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
+		j = new Jesus(jxMax, jyMax, jxMin, jyMin);
+		Spider.setBounds(sxMax, syMax, sxMin, syMin);
+		spiList = new SpiderList(sxMax);
+		bList = new BulletList();
+		
+		background = new Image[] {new Image("res/backgroundPortalA.png"), new Image("res/backgroundPortalB.png"), 
+									new Image("res/backgroundPortalC.png"), new Image("res/backgroundPortalD.png")};
+		backgroundObj = new Background(background.length);
+		bgn = backgroundObj.current();
+		
+		muzzleFlash = new Image[] {new Image("res/muzzle1.png"), new Image( "res/muzzle2.png")};
+		muzzleFlashObj = new MuzzleFlash(muzzleFlash.length);
+		mfn = muzzleFlashObj.current();
+
+		cList = new Corpses();
+		
+		bulletImage = new Image("res/bullet.png");
+		
+		spiderImage = new Image("res/spider.png");
+		spiderImage = new Image("res/spiderb.png");
+		spiderImage = new Image("res/spiderc.png");
+		
+		corpseImage = new Image("res/spider.png");
+		
+		jesus = new Image("res/JesusA.png");
+		jesus = new Image("res/JesusB.png");
+	}
+	
+	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException{
+		Input input = gc.getInput();
+		//g.drawString("This is the play state!", 100, 100);
+		if (gameTime % 25 == 0) bgn = backgroundObj.next();
+		g.drawImage(background[bgn], 0, 0);
+		g.drawString("      Killed: " + killed + 
+				"      Escaped: " + escaped + 
+				"      Timer: " + gameTime/60, 100, 10);
+		jesus = new Image(j.image.val);
+		g.drawImage(jesus, j.x, j.y);
+		
+		//logic currently only draws flash for a single frame
+		if (drawMF) {
+			mfn = muzzleFlashObj.next();
+			g.drawImage(muzzleFlash[mfn], j.xGun, j.yGun);
+		}
+		
+		//draw bullets
+		if(!bList.isEmpty()) {
+			currentB = bList.first;
+			do {
+				g.drawImage(bulletImage, currentB.x, currentB.y);
+				currentB = currentB.next;
+			} while (currentB != null);
+		}
+		
+		//draw spiders
+		if(!spiList.isEmpty()) {
+			currentS = spiList.first;
+			do {
+				g.drawImage(spiderImage, currentS.x, currentS.y);
+				currentS = currentS.next;
+			} while (currentS != null);
+		}
+		
+		//draw corpses
+		if(!cList.isEmpty()) {
+			currentS = cList.first;
+			do {
+				g.drawImage(corpseImage, currentS.x, currentS.y);
+				currentS = currentS.next;
+			} while (currentS != null);
+		}
+		
+		FPSCap.sync(60);
+	}
+	
+	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException{
+		Input input = gc.getInput();
+		//jesus
+		if(input.isKeyDown(Input.KEY_UP)) j.setPos(1);
+		if(input.isKeyDown(Input.KEY_DOWN)) j.setPos(-1);
+		
+		//bullet spawn and update returns boolean and draws muzzle flash if bullet created this frame
+		drawMF = bulletSpawn(input);
+		//spider spawn and update
+		spiderSpawn();
+		
+		Bullet i = bList.first;
+		Spider j = spiList.first;
+		
+		//for each bullet
+		while(i != null) {
+			while (j != null) {
+				//check for a collision with every spider
+				if (i.collision(j.x, j.y, Spider.dx, Spider.dy)) {
+					//if a collision occurs remove the bullet and spider takes hit
+					bList.remove(i);
+					//if hit kills spider remove it from spider list and add it to corpse list;
+					if(j.hit(i.damage)) {
+						j.death();
+						cList.add(spiList.remove(j));
+						killed++;
+					}
+					break;
+				}
+				j = j.next;
+			}
+			i = i.next;
+			j = spiList.first;
+		}
+		
+		//clean up corpse list
+		cList.cleanUp();
+		gameTime++;
+	}
+	
+	//bullet spawn and update
+	private boolean bulletSpawn(Input inputIn) throws SlickException{
+		//if list is empty logic wont work
+		if(!bList.isEmpty()) {
+			currentB = bList.first;
+			do {
+				if (!currentB.moveL()) bList.remove(currentB);
+				currentB = currentB.next;
+			} while (currentB != null);
+		}
+		//consider revising bullet time logic to allow for bullet creation at any value of gameTime but delay next possible value
+		Input input = inputIn;
+		if(input.isKeyDown(Input.KEY_SPACE) && gameTime % bList.spawnTime == 0) { 
+			bList.add(new Bullet(j.xGun, j.yGun));
+			muzzleFlash = new Image(muzzleFlashObj.next());
+			return true;
+		}
+		return false;
+	}
+	
+	//spider spawn and update
+	private void spiderSpawn() throws SlickException{
+		if(gameTime % spiList.spawnTime == 0) { 
+			spiList.add(new Spider(sxMin, syMax, syMin, gameTime));
+		}
+		if(!spiList.isEmpty()) {
+			currentS = spiList.first;
+			do {
+				if(!currentS.moveR()) {
+					spiList.remove(currentS);
+					escaped++;
+				}
+				//image change for spider, faster if moving faster
+				if (((gameTime - currentS.spawnTime) % (60/(currentS.xSlope + Math.abs(currentS.ySlope)))) == 0) spiderImage = new Image(currentS.nextImage());
+				currentS = currentS.next;
+			} while (currentS != null);
+		}
+	}
+	
+	public int getID() {
+		return 1;
+	}
+	
+}

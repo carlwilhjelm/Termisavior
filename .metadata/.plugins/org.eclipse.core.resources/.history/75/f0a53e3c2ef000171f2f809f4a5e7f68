@@ -1,0 +1,39 @@
+package javagame;
+
+public class Corpses {
+	Spider first, last;
+	public static int count;
+	public static final int maxCount;
+	
+	   public Corpses () {
+	      first = null;
+	      last = null;
+	      count = 0;
+	      maxCount = 20;
+	   }
+		
+	   public boolean isEmpty() {
+	      return first == null;
+	   }
+	   
+	   public void add(Spider x) {
+		   if (first == null) { 
+			   first = x;
+			   last = x;
+			   count = 1;
+			   return;
+		   }
+		   last.next = x;
+		   last = x;
+		   count++;
+	   }
+	   
+	   public void remove() {
+		   first = first.next;
+		   count--;
+	   }
+	   
+	   public void cleanUp() {
+		   if (count > maxCount) remove();
+	   }
+}

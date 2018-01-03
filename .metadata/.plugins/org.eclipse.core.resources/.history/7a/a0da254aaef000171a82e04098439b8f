@@ -1,0 +1,33 @@
+package javagame;
+
+public class Background {
+	int current, totalImages;
+	
+	public Background(int n) {
+	current = 0;
+	totalImages = n;	
+	}
+	
+	public void next() {
+		if (++current > totalImages) n = 0;
+	}
+	
+	/*
+	Node first, current;
+	public Background (String firstIn, String...imageNames) {
+		first = new Node(firstIn);
+		current = first;
+		for (String str : imageNames) {
+			current.next = new Node(str);
+			current = current.next;
+		}
+		current.next = first;
+	}
+	
+	public String next() {
+		current = current.next;
+		return current.val;
+	}
+	*/
+
+}
